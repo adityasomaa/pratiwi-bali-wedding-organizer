@@ -115,8 +115,8 @@ The Hostinger integration is read-only for DNS, so the record goes in by hand:
 
 1. hPanel → **Domains → onyxcreative.asia → DNS / Nameservers**.
 2. **Choose type `CNAME` first, then fill the fields.** The third column is labelled *Value* until you change the type, at which point it becomes *Target*. Filling it before switching loses the entry.
-3. Name `<slug>`, Target `cname.vercel-dns.com`, TTL default.
-4. Add the domain in Vercel under the project's Domains tab.
+3. Name `<slug>`, TTL default. For the Target, use the value Vercel actually asks for: add the domain to the project first, then read `recommendedCNAME` from the domain config. This account is issued a per-project host (`<hash>.vercel-dns-017.com`), not the generic `cname.vercel-dns.com`.
+4. Add the domain in Vercel under the project's Domains tab before adding the record, so you have that value.
 5. The SSL certificate takes roughly four minutes to issue. SSL errors before that are normal. Do not call it done until HTTPS returns 200.
 
 **10. Verify in production, not on localhost.**
