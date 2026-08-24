@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Pratiwi Bali Wedding Organizer</title>
+  <g fill="none" stroke="#3d714c" stroke-width="6" stroke-linecap="round">
+    <path d="M 24 10 A 22 22 0 0 0 24 54"/>
+    <path d="M 40 10 A 22 22 0 0 1 40 54"/>
+  </g>
+  <circle cx="32" cy="32" r="6" fill="#285d39"/>
+</svg>
