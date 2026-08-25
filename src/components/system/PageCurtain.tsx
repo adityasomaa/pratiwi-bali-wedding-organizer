@@ -4,6 +4,7 @@ import { useSite } from '@/components/system/SiteProvider'
 import { SplitText } from '@/components/system/SplitText'
 import { getDictionary } from '@/i18n/dictionaries'
 import { client } from '@/config/client.config'
+import { wordmarkParts } from '@/lib/displayName'
 
 /**
  * Both loaders live here.
@@ -34,7 +35,9 @@ export function PageCurtain() {
           <div className="curtain-intro">
             <SplitText
               text={client.name}
+              parts={wordmarkParts()}
               className="curtain-wordmark"
+              partClassName="curtain-line"
               charClassName="curtain-char"
               delayStep={38}
               startDelay={80}

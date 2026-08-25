@@ -274,14 +274,38 @@
     align-items: center;
     gap: 0.9rem;
   }
+  /* Phone and tablet: the wordmark breaks into its configured parts, one per
+     line, and each part stays whole. Desktop: the parts sit on one line.
+     The break point comes from `shortName` in the client config, not from
+     wherever the browser happens to run out of room, which is what stranded
+     "Wedding" on the first line and split "Wedding Organizer" in two. */
   .curtain-wordmark {
     display: block;
-    font-size: clamp(1.75rem, 8vw, 3rem);
+    font-size: clamp(1.5rem, 7.2vw, 2.5rem);
     font-weight: 400;
     letter-spacing: -0.03em;
-    line-height: 1.05;
-    max-inline-size: 18ch;
-    text-wrap: balance;
+    line-height: 1.1;
+    max-inline-size: none;
+  }
+  .curtain-line {
+    display: block;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 64rem) {
+    .curtain-wordmark {
+      font-size: clamp(2rem, 4.4vw, 3rem);
+      white-space: nowrap;
+    }
+    .curtain-line {
+      display: inline-block;
+    }
+    /* Restores the gap the block layout swallowed. A margin rather than a
+       non-breaking-space escape: the escape survives authoring but not the
+       CSS minifier, which turned it into a visible tofu glyph. */
+    .curtain-line + .curtain-line {
+      margin-left: 0.22em;
+    }
   }
   .curtain-char {
     display: inline-block;

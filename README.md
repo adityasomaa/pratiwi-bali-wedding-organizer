@@ -185,6 +185,8 @@ scripts/                 font conversion, graphics generation, the three audits
 
 **The wordmark absorbs the header's shrink; the controls never do.** `.header-actions` is `flex: none`. Without it the global `* { min-width: 0 }` lets that group collapse below its own min-content and the hamburger spills past the viewport edge, which a long business name is enough to trigger.
 
+**The loader breaks the wordmark where `shortName` says, not where the browser runs out of room.** `wordmarkParts()` splits the name after `shortName` when it is a proper prefix, so the intro loader reads "Pratiwi Bali" / "Wedding Organizer" on phone and tablet and sits on one line on desktop. Set `shortName` equal to `name` and the wordmark stays a single unbroken line at every width.
+
 **The hero display size is banded by name length.** `displayCap()` in the locale layout writes `--display-cap` onto `<html>`. Business names in this set run from 12 to 30-plus characters; one fixed size either wastes the screen or pushes a long name onto a third line. Names up to 20 characters get one line on desktop, longer ones get two balanced lines. `audit:layout` reports two desktop lines as a warning, not a failure: the rule is one line ideally, never more than two on desktop and never four anywhere.
 
 **Transitions never depend on `requestAnimationFrame` alone.** `src/lib/wait.ts` races rAF against `setTimeout`. rAF stops firing in a background tab, and a sequence chained on it alone leaves the curtain covering the page forever.

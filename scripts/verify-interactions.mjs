@@ -111,6 +111,8 @@ const browser = await chromium.launch()
 
   await page.mouse.wheel(0, 900)
   const scrollBefore = await scrollSettled(page)
+  if (scrollBefore > 100) pass('page scrolled before the lock was taken', String(scrollBefore))
+  else fail('page scrolled before the lock was taken', String(scrollBefore))
 
   // Click a tile that is already fully on screen. Clicking one that is not
   // makes the driver scroll it into view first, which changes the scroll
@@ -126,6 +128,11 @@ const browser = await chromium.launch()
   if (tileIndex < 0) fail('a gallery tile is fully visible after scrolling')
   await page.locator('.gallery-tile').nth(Math.max(0, tileIndex)).click()
   await page.waitForSelector('.lightbox', { timeout: 5000 })
+  // The portal paints before the scroll-lock effect commits. Read state only
+  // once the lock is actually on, otherwise the assertions race the commit.
+  await page.waitForFunction(() => document.body.dataset.scrollLocked === 'true', null, {
+    timeout: 5000,
+  })
 
   const state = await page.evaluate(() => {
     const lb = document.querySelector('.lightbox')
@@ -135,6 +142,13 @@ const browser = await chromium.launch()
       z: Number(getComputedStyle(lb).zIndex),
       headerZ: Number(getComputedStyle(document.querySelector('.site-header')).zIndex),
       locked: document.body.dataset.scrollLocked === 'true',
+      /* The Y the provider actually captured when it took the lock. Comparing
+         the restore against this, rather than against a reading taken before
+         the click, is immune to smooth scrolling still easing when the tile
+         was clicked. */
+      lockedAt: Math.round(
+        parseFloat(getComputedStyle(document.body).getPropertyValue('--locked-scroll')) || 0,
+      ),
       scrimCovers:
         scrim.getBoundingClientRect().width >= window.innerWidth - 1 &&
         scrim.getBoundingClientRect().height >= window.innerHeight - 1,
@@ -178,8 +192,9 @@ const browser = await chromium.launch()
   else fail('Escape closes the lightbox')
   if (!after.locked) pass('body scroll is released on close')
   else fail('body scroll is released on close')
-  if (Math.abs(after.scrollY - scrollBefore) < 4) pass('scroll position is restored', `${scrollBefore} -> ${after.scrollY}`)
-  else fail('scroll position is restored', `${scrollBefore} -> ${after.scrollY}`)
+  if (Math.abs(after.scrollY - state.lockedAt) < 4)
+    pass('scroll position is restored', `locked at ${state.lockedAt} -> ${after.scrollY}`)
+  else fail('scroll position is restored', `locked at ${state.lockedAt} -> ${after.scrollY}`)
   if (/\d+ \/ 24/.test(counter)) pass('arrow keys move through the gallery', counter.replace(/\s+/g, ' '))
   else fail('arrow keys move through the gallery', counter)
 
@@ -251,6 +266,9 @@ const browser = await chromium.launch()
   // that the whole field opens the calendar, not just the glyph.
   await page.mouse.click(box.x + 28, box.y + box.height / 2)
   await page.waitForSelector('.calendar', { timeout: 5000 })
+  await page.waitForFunction(() => document.body.dataset.scrollLocked === 'true', null, {
+    timeout: 5000,
+  })
   pass('calendar opens from a click on the field text, not just the icon')
 
   const cal = await page.evaluate(() => {
